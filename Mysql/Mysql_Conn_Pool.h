@@ -2,7 +2,11 @@
 #define _MYSQL_CON_POOL_
 
 #include<list>
+#include<queue>
+
 #include"Mysql_Conn.h"
+
+class CMysql_Task;
 
 class CMysql_Con_Pool
 {
@@ -25,6 +29,8 @@ private:
 	std::string strPwd_;
 
 	std::List<CMysql_Conn*> CurrenConList_;
+
+	std::queue<CMysql_Task*> Taskqueue_;
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include "Mysql_Conn_Pool.h"
 #include "Mysql_Conn.h"
+#include "Mysql_Task.h"
 
 CMysql_Con_Pool::CMysql_Con_Pool(int default,int max,int min, 
 const string& Host, const string& User, const string& pwd):
