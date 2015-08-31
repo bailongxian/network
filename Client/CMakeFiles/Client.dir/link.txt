@@ -1,0 +1,1 @@
+/usr/bin/c++    -O0 -Wall -g -pg -ggdb -std=c++11    CMakeFiles/Client.dir/Message.cpp.o CMakeFiles/Client.dir/ReadBuff.cpp.o CMakeFiles/Client.dir/client.cpp.o  -o Client -rdynamic -lpthread 

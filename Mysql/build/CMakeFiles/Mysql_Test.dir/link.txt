@@ -1,0 +1,1 @@
+/usr/bin/c++    -O0 -Wall -g -pg -ggdb -std=c++11    CMakeFiles/Mysql_Test.dir/mysql_test.cpp.o  -o Mysql_Test -rdynamic -lmysqlclient 
