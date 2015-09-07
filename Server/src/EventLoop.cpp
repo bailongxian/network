@@ -24,9 +24,10 @@
 
 int g_total = 0;
 
-CEventLoop::CEventLoop(CMain_Reactor* Server, ReadWriteCallBack Readcb, ReadWriteCallBack Writecb, ConnectCallBack Connctcb, CloseCallBack Closecb)
+CEventLoop::CEventLoop(CMain_Reactor* Server, int Index, ReadWriteCallBack Readcb, ReadWriteCallBack Writecb, ConnectCallBack Connctcb, CloseCallBack Closecb)
 :bRun_(false),
 Server_(Server),
+nIndex_(Index),
 Readcb_(Readcb),
 Writecb_(Writecb),
 Connectcb_(Connctcb),
@@ -38,10 +39,7 @@ MemPool_(new CMemPool())
 	int ret = pipe2(pipe, O_NONBLOCK|O_CLOEXEC);
 	assert(!ret);
 	Epoller_->Regist_Pipe(pipe[0]);
-/*	ret = pipe2(msg_pipe, O_NONBLOCK|O_CLOEXEC);
-	assert(!ret);
-	Epoller_->Regist_Pipe(msg_pipe[0]);
-*/	evfd_ = eventfd(0, O_NONBLOCK);
+	evfd_ = eventfd(0, O_NONBLOCK);
 	Epoller_->Regist_Pipe(evfd_);
 	InitConnectPool();
 	ret = pthread_mutex_init(&sendqueue_mutex_, NULL);
@@ -297,7 +295,6 @@ void CEventLoop::ProcessQueue()
 	DeQueue(temMsg);
 	int size = temMsg.size();
 	g_total += size;
-//	printf("process queue = %d\n", size);
 	while(!temMsg.empty())
 	{
 		CMessage *Msg = temMsg.front();

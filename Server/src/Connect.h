@@ -57,6 +57,7 @@ public:
 	void Handle_Write();
 	void Handle_Error();
 	void Handle_Close();
+	void Handle_Connect();
 	void ShutDown();
 
 	void Send(char* data, int len);
@@ -68,6 +69,7 @@ public:
 
 private:
 	void Remove();
+	void Exit();
 	int Writev();
 	int Write(const char* data, int len);
 	int Readv();

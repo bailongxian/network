@@ -4,6 +4,7 @@
 #include "Common.h"
 #include <queue>
 #include <pthread.h>
+#include <ext/hash_map>
 
 class CEventLoop;
 class CAcceptor;
@@ -31,6 +32,9 @@ public:
 	void SetExit();
 private:
 	void ReleasePendingMsg();
+	void AddNewConnect(int fd, int LoopId);
+	void RemoveConnect(int fd);
+	int  GetConnectLoop(int fd);
 private:
 	bool					bExit_;
 	const int           	nCpuNum_;
@@ -44,6 +48,7 @@ private:
 	std::queue<CMessage*> Msg_Queue_;
 	pthread_mutex_t			Msg_mutex_;
 	pthread_cond_t			Msg_Cont_;
+	__gnu_cxx::hash_map<int, int>	fdmap_;
 	
 };
 

@@ -22,7 +22,9 @@ struct TimeNode;
 class CEventLoop
 {  
 public:
-	CEventLoop(CMain_Reactor* Server, ReadWriteCallBack Readcb, ReadWriteCallBack Writecb, ConnectCallBack Connectcb, CloseCallBack Closecb);
+	CEventLoop(CMain_Reactor* Server, int index,
+		ReadWriteCallBack Readcb, ReadWriteCallBack Writecb, 
+		ConnectCallBack Connectcb, CloseCallBack Closecb);
 	~CEventLoop();
 
 	void  Start();
@@ -63,6 +65,8 @@ public:
 	void 	 WakeUp();
 	void	 BeWakeUp();
 
+	int		 GetIndex() const	{return nIndex_;}
+
 private:
 
 	void ProcessActiveEvent();
@@ -76,7 +80,8 @@ private:
 	int 		evfd_;
 	pthread_t	tid_;
 	time_t 		expiretime_;
-	CMain_Reactor*	  Server_;	  
+	CMain_Reactor*	  Server_;
+	int 		nIndex_;
 	ReadWriteCallBack Readcb_;
 	ReadWriteCallBack Writecb_;
 	ConnectCallBack	Connectcb_;

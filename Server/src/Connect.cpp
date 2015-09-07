@@ -346,6 +346,15 @@ void CConnect::Handle_Close()
 	Remove();
 }
 
+void CConnect::Handle_Connect()
+{
+	CMessage *Msg = CMessageAlloctor::AllocMSG(100, 4);
+	Msg->fd_ = GetFd();
+	Msg->Write(EventLoop_->GetIndex());
+	Msg->SetSendFlag();
+	EventLoop_->PushMsg(Msg);
+}
+
 void CConnect::ShutDown()
 {
 	state_ = DIS_CONNECTING;

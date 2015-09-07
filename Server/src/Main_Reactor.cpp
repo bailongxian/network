@@ -72,9 +72,9 @@ void CMain_Reactor::Start()
 		exit(0);
 
 	printf("Accept init success\n");
-	for(int i = 0; i < 1; i++)
+	for(int i = 0; i < nCpuNum_; i++)
 	{  
-		CEventLoop* loop = new CEventLoop(this,Readcb_, Writecb_, Connectcb_, Closecb_);
+		CEventLoop* loop = new CEventLoop(this,i, Readcb_, Writecb_, Connectcb_, Closecb_);
 		loop->Start();
 		LoopList_[i] = loop;
 	}
@@ -101,7 +101,7 @@ void CMain_Reactor::BeginWork()
 
 void CMain_Reactor::Exit()
 {  
-	for(int i = 0; i < 1; i++)
+	for(int i = 0; i < nCpuNum_; i++)
 	{  
 		CEventLoop *loop = LoopList_[i];
 		loop->Exit();
@@ -172,6 +172,7 @@ void CMain_Reactor::ProcessMsg(CMessage * Msg)
 	switch(Msg->GetType())
 	{
 	case 0://con exit
+		RemoveConnect(Msg->GetFd());
 		CMessageAlloctor::FreeMSG(&Msg);
 		break;
 	case 1: // echo
@@ -205,6 +206,13 @@ void CMain_Reactor::ProcessMsg(CMessage * Msg)
 			CMessageAlloctor::FreeMSG(&Msg);
 		}
 		break;
+		
+	case 100: // new connect
+		{
+			int nLoopid = Msg->Readint();
+			AddNewConnect(Msg->GetFd(),nLoopid);
+		}
+		break;
 	
 	}
 }
@@ -214,7 +222,11 @@ void CMain_Reactor::PushSendQueue(CMessage * Msg)
 {
 	Msg->SetSendFlag();
 	g_count++;
-	LoopList_[0]->EnQueue(Msg);
+	int nLoopid = GetConnectLoop(Msg->GetFd());
+	if(nLoopid < 0)
+		return;
+	assert(nLoopid < nCpuNum_);
+	LoopList_[nLoopid]->EnQueue(Msg);
 }
 
 void CMain_Reactor::WritefdToLoop(int fd)
@@ -230,6 +242,48 @@ void CMain_Reactor::ReleasePendingMsg()
 		Msg_Queue_.pop();
 		CMessageAlloctor::FreeMSG(&Msg);
 	}
+}
+
+void CMain_Reactor::AddNewConnect(int fd,int LoopId)
+{
+	assert(LoopId < nCpuNum_);
+	
+	__gnu_cxx::hash_map<int, int>::iterator it = fdmap_.find(fd);
+	if(it == fdmap_.end())
+	{
+		fdmap_[fd] = LoopId;
+	}
+	else
+	{
+		// handle err
+	}
+}
+
+void CMain_Reactor::RemoveConnect(int fd)
+{
+	__gnu_cxx::hash_map<int, int>::iterator it = fdmap_.find(fd);
+	if(it != fdmap_.end())
+	{
+		fdmap_.erase(it);
+	}
+	else
+	{
+		// handle err
+	}
+}
+
+int CMain_Reactor::GetConnectLoop(int fd)
+{
+	__gnu_cxx::hash_map<int, int>::iterator it = fdmap_.find(fd);
+	if(it != fdmap_.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		// handle err
+	}
+	return -1;
 }
 
 void* Accept_thread(void *arg)
